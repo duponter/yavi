@@ -32,4 +32,26 @@ public interface ConstraintCondition<T> extends BiPredicate<T, ConstraintContext
 	static <T> ConstraintCondition<T> hasAttributeWithValue(String key, Object value) {
 		return (t, context) -> context.attribute(key).isEqualTo(value);
 	}
+
+	/**
+	 * @since 0.13.0
+	 */
+	static <T> ConstraintCondition<T> from(BiPredicate<T, ConstraintContext> condition) {
+		return condition::test;
+	}
+
+	/**
+	 * @since 0.13.0
+	 */
+	static <T> ConstraintCondition<T> not(BiPredicate<T, ConstraintContext> condition) {
+		return from(condition.negate());
+	}
+
+	/**
+	 * @since 0.13.0
+	 */
+	@Override
+	default ConstraintCondition<T> negate() {
+		return (T t, ConstraintContext context) -> !test(t, context);
+	}
 }

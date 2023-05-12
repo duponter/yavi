@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import am.ik.yavi.PhoneNumber;
 import am.ik.yavi.arguments.Arguments3Validator;
 import am.ik.yavi.builder.ArgumentsValidatorBuilder;
+import am.ik.yavi.builder.StringValidatorBuilder;
 import am.ik.yavi.builder.ValidatorBuilder;
 import am.ik.yavi.core.ConstraintContext;
 import am.ik.yavi.core.ConstraintGroup;
@@ -37,7 +38,7 @@ public class ValidatorBuilderTest {
 
 	@Test
 	void allTypesBeanMeta() {
-		final Validator<AllTypesBean> validator = ValidatorBuilder.<AllTypesBean> of()
+		final Validator<AllTypesBean> validator = ValidatorBuilder.<AllTypesBean>of()
 				.constraint(_AllTypesBeanMeta.BIGDECIMALVALUE,
 						c -> c.greaterThan(BigDecimal.ZERO))
 				.constraint(_AllTypesBeanMeta.BIGINTEGERVALUE,
@@ -142,7 +143,7 @@ public class ValidatorBuilderTest {
 	@Test
 	void allTypesImmutableMeta() {
 		final Validator<AllTypesImmutable> validator = ValidatorBuilder
-				.<AllTypesImmutable> of()
+				.<AllTypesImmutable>of()
 				.constraint(_AllTypesImmutableMeta.BIGDECIMALVALUE,
 						c -> c.greaterThan(BigDecimal.ZERO))
 				.constraint(_AllTypesImmutableMeta.BIGINTEGERVALUE,
@@ -232,7 +233,7 @@ public class ValidatorBuilderTest {
 
 	@Test
 	void allTypesFieldMeta() {
-		final Validator<AllTypesField> validator = ValidatorBuilder.<AllTypesField> of()
+		final Validator<AllTypesField> validator = ValidatorBuilder.<AllTypesField>of()
 				.constraint(_AllTypesFieldMeta.BIGDECIMALVALUE,
 						c -> c.greaterThan(BigDecimal.ZERO))
 				.constraint(_AllTypesFieldMeta.BIGINTEGERVALUE,
@@ -368,7 +369,7 @@ public class ValidatorBuilderTest {
 
 	@Test
 	void nested() {
-		final Validator<Address> validator = ValidatorBuilder.<Address> of() //
+		final Validator<Address> validator = ValidatorBuilder.<Address>of() //
 				.nest(_AddressMeta.COUNTRY, b -> b //
 						.constraint(_Address_CountryMeta.NAME, c -> c //
 								.greaterThanOrEqual(2) //
@@ -399,13 +400,27 @@ public class ValidatorBuilderTest {
 	void conditionalValueValidators() {
 		ConstraintGroup group = ConstraintGroup.of("JP");
 		ValueValidator<String, String> passThrough = ValueValidator.passThrough();
-		ValueValidator<String, String> validator = ValidatorBuilder.<String> of()
+		ValueValidator<String, String> validator = ValidatorBuilder.<String>of()
 				.constraintOnCondition(
 						(String address,
-								ConstraintContext c) -> !"JP".equalsIgnoreCase(c.name()),
+						 ConstraintContext c) -> !"JP".equalsIgnoreCase(c.name()),
 						passThrough)
 				.constraintOnGroup(group,
 						PhoneNumber.validator().applicative().compose(PhoneNumber::new))
+				.build().applicative();
+		assertThat(validator.validate("1234", group).isValid()).isFalse();
+		assertThat(validator.validate("1234").isValid()).isTrue();
+	}
+
+	@Test
+	void ternaryValueValidators() {
+		ConstraintGroup group = ConstraintGroup.of("JP");
+		ValueValidator<String, String> passThrough = ValueValidator.passThrough();
+		ValueValidator<String, String> validator = ValidatorBuilder.<String>of()
+				.constraintOnCondition(
+						(String address, ConstraintContext c) -> "JP".equalsIgnoreCase(c.name()),
+						StringValidatorBuilder.of("", c -> c.greaterThan(4)).build(),
+						passThrough)
 				.build().applicative();
 		assertThat(validator.validate("1234", group).isValid()).isFalse();
 		assertThat(validator.validate("1234").isValid()).isTrue();

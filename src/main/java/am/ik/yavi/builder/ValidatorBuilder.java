@@ -750,6 +750,33 @@ public class ValidatorBuilder<T> implements Cloneable {
 		return this.constraintOnCondition(condition, validator);
 	}
 
+	/**
+	 * @since 0.13.0
+	 */
+	public <R> ValidatorBuilder<T> constraintOnCondition(ConstraintCondition<T> condition,
+			ValueValidator<T, R> whenTrue, ValueValidator<T, R> whenFalse) {
+		return this.constraintOnCondition(condition, whenTrue)
+				.constraintOnCondition(condition.negate(), whenFalse);
+	}
+
+	/**
+	 * @since 0.13.0
+	 */
+	public ValidatorBuilder<T> constraintOnCondition(ConstraintCondition<T> condition,
+			Validator<T> whenTrue, Validator<T> whenFalse) {
+		return this.constraintOnCondition(condition, whenTrue)
+				.constraintOnCondition(condition.negate(), whenFalse);
+	}
+
+	/**
+	 * @since 0.13.0
+	 */
+	public ValidatorBuilder<T> constraintOnCondition(ConstraintCondition<T> condition,
+			ValidatorBuilderConverter<T> whenTrue, ValidatorBuilderConverter<T> whenFalse) {
+		return this.constraintOnCondition(condition, whenTrue)
+				.constraintOnCondition(condition.negate(), whenFalse);
+	}
+
 	public <R> ValidatorBuilder<T> constraintOnGroup(ConstraintGroup group,
 			ValueValidator<T, R> applicative) {
 		return this.constraintOnCondition(group.toCondition(), applicative);
