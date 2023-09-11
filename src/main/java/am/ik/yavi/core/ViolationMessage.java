@@ -134,7 +134,10 @@ public interface ViolationMessage {
 		TEMPORAL_AFTER_OR_EQUAL("temporal.afterOrEqual",
 				"\"{0}\" has to be after or equals to {1}"), //
 		TEMPORAL_BETWEEN("temporal.between", "\"{0}\" has to be between {1} and {2}"), //
-		TEMPORAL_FIELD("temporal.field", "The {1} of \"{0}\" is invalid") //
+		TEMPORAL_FIELD("temporal.field", "The {1} of \"{0}\" is invalid"), //
+		OPTIONAL_IS_PRESENT("optional.isPresent", "\"{0}\" must be present"), //
+		OPTIONAL_IS_EMPTY("optional.isEmpty", "\"{0}\" must be empty"), //
+		OPTIONAL_CONTAINS("optional.contains", "\"{0}\" must contain {1}") //
 		;
 
 		private final String defaultMessageFormat;
